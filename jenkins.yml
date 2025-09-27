@@ -1,67 +1,19 @@
-pipeline {
-  agent any
+pipeline:
+  agent: any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        // get source from the job's configured SCM
-        checkout scm
-      }
-    }
+  stages:
+    - stage: "Build"
+      steps:
+        - sh: echo "Building the app..."
 
-    stage('Build') {
-      steps {
-        // create a tiny "artifact" to demonstrate
-        sh '''
-          echo "Building..."
-          mkdir -p build
-          echo "Demo app artifact (build ${BUILD_NUMBER})" > build/app.txt
-        '''
-      }
-    }
+    - stage: "Test"
+      steps:
+        - sh: echo "Running tests..."
+        - sh: echo '<testsuite tests="1"></testsuite>' > test-results.xml
+        - junit: "test-results.xml"
 
-    stage('Unit Test (demo)') {
-      steps {
-        // produce a minimal JUnit XML so Jenkins can display test results
-        sh '''
-          echo "Running demo test..."
-          cat > test-results.xml <<'XML'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <testsuites>
-            <testsuite name="demo" tests="1" failures="0">
-              <testcase classname="demo" name="simple-test" />
-            </testsuite>
-          </testsuites>
-          XML
-        '''
-        // publish the test report in Jenkins
-        junit 'test-results.xml'
-      }
-    }
-
-    stage('Archive') {
-      steps {
-        // save build outputs so you can download them from the build page
-        archiveArtifacts artifacts: 'build/**', fingerprint: true
-      }
-    }
-
-    stage('Deploy to Staging (simulated)') {
-      when { branch 'main' } // only run on main branch
-      steps {
-        sh '''
-          # copy the build into a deployments folder inside the job workspace
-          mkdir -p "$WORKSPACE/deployments"
-          cp -r build "$WORKSPACE/deployments/build-${BUILD_NUMBER}"
-          echo "Deployed build ${BUILD_NUMBER} → $WORKSPACE/deployments/build-${BUILD_NUMBER}"
-        '''
-      }
-    }
-  }
-
-  post {
-    success { echo "Pipeline succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}" }
-    failure { echo "Pipeline failed: check Console Output." }
-  }
-}
-
+    - stage: "Deploy"
+      when:
+        branch: "main"
+      steps:
+        - sh: echo "Deploying app to staging..."
