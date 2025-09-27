@@ -2,14 +2,14 @@ pipeline:
   agent: any
 
   stages:
-    - stage: "Build"
+    - stage:"Build"
       steps:
         - sh: |
             echo "Building the app..."
             mkdir -p build
             echo "sample artifact" > build/app.txt
 
-    - stage: "Test"
+    - stage:"Test"
       steps:
         - sh: |
             echo "Running tests..."
@@ -18,7 +18,7 @@ pipeline:
         - junit:
             testResults: "test-results.xml"
 
-    - stage: "Deploy"
+    - stage:"Deploy"
       when:
         branch: "main"
       steps:
