@@ -1,0 +1,9 @@
+{
+  "name": "simple-static",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"OK\"",
+    "build": "mkdir -p dist && cp -r src/* dist/"
+  }
+}
+
